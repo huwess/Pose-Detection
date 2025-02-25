@@ -26,7 +26,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 
     private var results: PoseLandmarkerResult? = null
     private var pointPaint = Paint()
-    private var linePaint = Paint()
+    //    private var linePaint = Paint()
     private var textPaint = Paint()
 
     private var scaleFactor: Float = 1f
@@ -46,20 +46,20 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
     fun clear() {
         results = null
         pointPaint.reset()
-        linePaint.reset()
+//        linePaint.reset()
         textPaint.reset()
         invalidate()
         initPaints()
     }
 
     private fun initPaints() {
-        linePaint.color = ContextCompat.getColor(context!!, R.color.mp_color_primary)
-        linePaint.strokeWidth = 12f
-        linePaint.style = Paint.Style.STROKE
+//        linePaint.color = ContextCompat.getColor(context!!, R.color.mp_color_primary)
+//        linePaint.strokeWidth = 12f
+//        linePaint.style = Paint.Style.STROKE
 
-        pointPaint.color = Color.YELLOW
-        pointPaint.strokeWidth = 12f
-        pointPaint.style = Paint.Style.FILL
+//        pointPaint.color = Color.RED
+//        pointPaint.strokeWidth = 60f
+//        pointPaint.style = Paint.Style.FILL
 
         textPaint.color = Color.WHITE
         textPaint.textSize = 40f
@@ -79,22 +79,30 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                 }
 
                 // Draw landmarks and connections
-                PoseLandmarker.POSE_LANDMARKS.forEach {
-                    canvas.drawLine(
-                        points[it.start()].first,
-                        points[it.start()].second,
-                        points[it.end()].first,
-                        points[it.end()].second,
-                        linePaint
-                    )
-                }
+//                PoseLandmarker.POSE_LANDMARKS.forEach {
+//                    canvas.drawLine(
+//                        points[it.start()].first,
+//                        points[it.start()].second,
+//                        points[it.end()].first,
+//                        points[it.end()].second,
+//                        linePaint
+//                    )
+//                }
 
-                for (normalizedLandmark in landmark) {
-                    canvas.drawPoint(
-                        normalizedLandmark.x() * imageWidth * scaleFactor,
-                        normalizedLandmark.y() * imageHeight * scaleFactor,
-                        pointPaint
-                    )
+                // This is for the Circle and Landmark Specifications
+                val importantLandmarkIndices = setOf(11, 12, 13, 14, 15, 16, 23, 24)
+
+                for (normalizedLandmark in landmark.withIndex()) {
+                    val index = normalizedLandmark.index
+                    val point = normalizedLandmark.value
+
+                    if (index in importantLandmarkIndices) {
+                        val x = point.x() * imageWidth * scaleFactor
+                        val y = point.y() * imageHeight * scaleFactor
+                        val radius = 32f // Adjust as needed
+
+                        canvas.drawCircle(x, y, radius, pointPaint) // Draw circles only for selected landmarks
+                    }
                 }
 
                 // Calculate and draw angles
@@ -158,11 +166,21 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                         }
                         if(leftShoulderAngle < 70 && rightShoulderAngle < 70) {
                             stage = "down"
+
+                            pointPaint.color = Color.GREEN
+                            pointPaint.strokeWidth = 60f
+                            pointPaint.style = Paint.Style.FILL
+
                             overlayUpdateListener?.onStageUpdated(stage)
                         }
 
                         if((leftShoulderAngle > 160 && rightShoulderAngle > 160) && (stage == "down")) {
                             stage = "up"
+
+                            pointPaint.color = Color.RED
+                            pointPaint.strokeWidth = 60f
+                            pointPaint.style = Paint.Style.FILL
+
                             reps += 1
                             overlayUpdateListener?.onStageUpdated(stage)
                             overlayUpdateListener?.onRepsUpdated(reps)
@@ -173,8 +191,17 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                                     if (rightElbowAngle != null) {
                                         if(leftElbowAngle <= 165 && rightElbowAngle <= 165) {
                                             sign = "Proper"
+
+                                            pointPaint.color = Color.GREEN
+                                            pointPaint.strokeWidth = 60f
+                                            pointPaint.style = Paint.Style.FILL
+
                                         } else {
                                             sign = "Too High"
+
+                                            pointPaint.color = Color.YELLOW
+                                            pointPaint.strokeWidth = 60f
+                                            pointPaint.style = Paint.Style.FILL
                                         }
                                         overlayUpdateListener?.onSignUpdated(sign)
                                     }
@@ -188,8 +215,17 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                                             if (rightElbowAngle != null) {
                                                 if(leftElbowAngle <= 150 && rightElbowAngle <= 150 ) {
                                                     sign = "Proper"
+
+                                                    pointPaint.color = Color.GREEN
+                                                    pointPaint.strokeWidth = 60f
+                                                    pointPaint.style = Paint.Style.FILL
+
                                                 } else {
                                                     sign = "Too Wide"
+
+                                                    pointPaint.color = Color.YELLOW
+                                                    pointPaint.strokeWidth = 60f
+                                                    pointPaint.style = Paint.Style.FILL
                                                 }
 
                                                 overlayUpdateListener?.onSignUpdated(sign)
@@ -206,8 +242,17 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                             if((leftShoulderAngle < 70) && (rightShoulderAngle < 70)) {
                                 if (leftShoulderAngle < 30 && rightShoulderAngle < 30) {
                                     sign = "Arms Too Low"
+
+                                    pointPaint.color = Color.RED
+                                    pointPaint.strokeWidth = 60f
+                                    pointPaint.style = Paint.Style.FILL
+
                                 } else {
                                     sign = "Proper"
+
+                                    pointPaint.color = Color.GREEN
+                                    pointPaint.strokeWidth = 60f
+                                    pointPaint.style = Paint.Style.FILL
                                 }
                             } else {
                                 sign = ""
