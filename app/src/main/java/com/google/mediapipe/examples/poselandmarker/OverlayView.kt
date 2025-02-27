@@ -57,9 +57,9 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 //        linePaint.strokeWidth = 12f
 //        linePaint.style = Paint.Style.STROKE
 
-        pointPaint.color = Color.RED
-        pointPaint.strokeWidth = 60f
-        pointPaint.style = Paint.Style.FILL
+//        pointPaint.color = Color.RED
+//        pointPaint.strokeWidth = 60f
+//        pointPaint.style = Paint.Style.FILL
 
         textPaint.color = Color.WHITE
         textPaint.textSize = 40f
@@ -161,13 +161,19 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                     if (rightShoulderAngle != null) {
                         if(leftShoulderAngle < 90f &&  rightShoulderAngle < 90){
                             quad = 0
+                            pointPaint.color = Color.RED
+                            pointPaint.strokeWidth = 60f
+                            pointPaint.style = Paint.Style.FILL
                         } else {
                             quad = 1
+                            pointPaint.color = Color.GREEN
+                            pointPaint.strokeWidth = 60f
+                            pointPaint.style = Paint.Style.FILL
                         }
                         if(leftShoulderAngle < 70 && rightShoulderAngle < 70) {
                             stage = "down"
 
-                            pointPaint.color = Color.GREEN
+                            pointPaint.color = Color.RED
                             pointPaint.strokeWidth = 60f
                             pointPaint.style = Paint.Style.FILL
 
@@ -177,7 +183,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                         if((leftShoulderAngle > 160 && rightShoulderAngle > 160) && (stage == "down")) {
                             stage = "up"
 
-                            pointPaint.color = Color.RED
+                            pointPaint.color = Color.GREEN
                             pointPaint.strokeWidth = 60f
                             pointPaint.style = Paint.Style.FILL
 
@@ -199,7 +205,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                                         } else {
                                             sign = "Too High"
 
-                                            pointPaint.color = Color.YELLOW
+                                            pointPaint.color = Color.RED
                                             pointPaint.strokeWidth = 60f
                                             pointPaint.style = Paint.Style.FILL
                                         }
@@ -223,7 +229,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                                                 } else {
                                                     sign = "Too Wide"
 
-                                                    pointPaint.color = Color.YELLOW
+                                                    pointPaint.color = Color.RED
                                                     pointPaint.strokeWidth = 60f
                                                     pointPaint.style = Paint.Style.FILL
                                                 }
