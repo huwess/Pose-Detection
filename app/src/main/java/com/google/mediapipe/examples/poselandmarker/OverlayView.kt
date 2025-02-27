@@ -57,9 +57,9 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 //        linePaint.strokeWidth = 12f
 //        linePaint.style = Paint.Style.STROKE
 
-//        pointPaint.color = Color.RED
-//        pointPaint.strokeWidth = 60f
-//        pointPaint.style = Paint.Style.FILL
+        pointPaint.color = Color.RED
+        pointPaint.strokeWidth = 60f
+        pointPaint.style = Paint.Style.FILL
 
         textPaint.color = Color.WHITE
         textPaint.textSize = 40f
