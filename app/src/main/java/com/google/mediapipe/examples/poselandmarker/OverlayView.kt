@@ -166,7 +166,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                             pointPaint.style = Paint.Style.FILL
                         } else {
                             quad = 1
-                            pointPaint.color = Color.GREEN
+                            pointPaint.color = Color.YELLOW
                             pointPaint.strokeWidth = 60f
                             pointPaint.style = Paint.Style.FILL
                         }
