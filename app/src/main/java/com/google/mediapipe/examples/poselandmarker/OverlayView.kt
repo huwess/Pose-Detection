@@ -183,7 +183,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                         if((leftShoulderAngle > 160 && rightShoulderAngle > 160) && (stage == "down")) {
                             stage = "up"
 
-                            pointPaint.color = Color.GREEN
+                            pointPaint.color = Color.YELLOW
                             pointPaint.strokeWidth = 60f
                             pointPaint.style = Paint.Style.FILL
 
