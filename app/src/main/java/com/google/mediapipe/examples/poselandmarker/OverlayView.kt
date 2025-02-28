@@ -101,182 +101,163 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                         val y = point.y() * imageHeight * scaleFactor
                         val radius = 32f // Adjust as needed
 
-                        canvas.drawCircle(
-                            x,
-                            y,
-                            radius,
-                            pointPaint
-                        ) // Draw circles only for selected landmarks
+                        canvas.drawCircle(x, y, radius, pointPaint) // Draw circles only for selected landmarks
                     }
+                }
 
+                // Calculate and draw angles
+                val angles = calculatePoseAngles(points)
+                val leftShoulderAngle = angles["LHipLShoulderLElbow"]
+                val rightShoulderAngle = angles["RHipRShoulderRElbow"]
+                val leftElbowAngle = angles["LShoulderLElbowLWrist"]
+                val rightElbowAngle = angles["RShoulderRElbowRWrist"]
+                val leftShoulderShoulderAngle = angles["LElbowLShoulderRShoulder"]
+                val rightShoulderShoulderAngle = angles["RElbowRShoulderLShoulder"]
 
-                    // Calculate and draw angles
-                    val angles = calculatePoseAngles(points)
-                    val leftShoulderAngle = angles["LHipLShoulderLElbow"]
-                    val rightShoulderAngle = angles["RHipRShoulderRElbow"]
-                    val leftElbowAngle = angles["LShoulderLElbowLWrist"]
-                    val rightElbowAngle = angles["RShoulderRElbowRWrist"]
-                    val leftShoulderShoulderAngle = angles["LElbowLShoulderRShoulder"]
-                    val rightShoulderShoulderAngle = angles["RElbowRShoulderLShoulder"]
+                //Visualize Angles
+                leftShoulderAngle?.let {
+                    val point = poseLandmarkerResult.landmarks().get(0).get(12) // Example: Left Shoulder (point 12)
+                    val x = point.x() * imageWidth * scaleFactor
+                    val y = point.y() * imageHeight * scaleFactor + 20 // Adjust Y position by -10
+                    canvas.drawText("Left Shoulder: ${it.toInt()}°", x, y, textPaint)
+                }
 
-                    //Visualize Angles
-                    leftShoulderAngle?.let {
-                        val point = poseLandmarkerResult.landmarks().get(0)
-                            .get(12) // Example: Left Shoulder (point 12)
-                        val x = point.x() * imageWidth * scaleFactor
-                        val y =
-                            point.y() * imageHeight * scaleFactor + 20 // Adjust Y position by -10
-                        canvas.drawText("Left Shoulder: ${it.toInt()}°", x, y, textPaint)
-                    }
+                rightShoulderAngle?.let {
+                    val point = poseLandmarkerResult.landmarks().get(0).get(11) // Example: Right Shoulder (point 11)
+                    val x = point.x() * imageWidth * scaleFactor
+                    val y = point.y() * imageHeight * scaleFactor + 20 // Adjust Y position by -10
+                    canvas.drawText("Right Shoulder: ${it.toInt()}°", x, y, textPaint)
+                }
 
-                    rightShoulderAngle?.let {
-                        val point = poseLandmarkerResult.landmarks().get(0)
-                            .get(11) // Example: Right Shoulder (point 11)
-                        val x = point.x() * imageWidth * scaleFactor
-                        val y =
-                            point.y() * imageHeight * scaleFactor + 20 // Adjust Y position by -10
-                        canvas.drawText("Right Shoulder: ${it.toInt()}°", x, y, textPaint)
-                    }
+                leftElbowAngle?.let {
+                    val point = poseLandmarkerResult.landmarks().get(0).get(14) // Example: Left Elbow (point 14)
+                    val x = point.x() * imageWidth * scaleFactor
+                    val y = point.y() * imageHeight * scaleFactor - 10 // Adjust Y position by -10
+                    canvas.drawText("Left Elbow: ${it.toInt()}°", x, y, textPaint)
+                }
 
-                    leftElbowAngle?.let {
-                        val point = poseLandmarkerResult.landmarks().get(0)
-                            .get(14) // Example: Left Elbow (point 14)
-                        val x = point.x() * imageWidth * scaleFactor
-                        val y =
-                            point.y() * imageHeight * scaleFactor - 10 // Adjust Y position by -10
-                        canvas.drawText("Left Elbow: ${it.toInt()}°", x, y, textPaint)
-                    }
+                rightElbowAngle?.let {
+                    val point = poseLandmarkerResult.landmarks().get(0).get(13) // Example: Right Elbow (point 13)
+                    val x = point.x() * imageWidth * scaleFactor
+                    val y = point.y() * imageHeight * scaleFactor - 10 // Adjust Y position by -10
+                    canvas.drawText("Right Elbow: ${it.toInt()}°", x, y, textPaint)
+                }
 
-                    rightElbowAngle?.let {
-                        val point = poseLandmarkerResult.landmarks().get(0)
-                            .get(13) // Example: Right Elbow (point 13)
-                        val x = point.x() * imageWidth * scaleFactor
-                        val y =
-                            point.y() * imageHeight * scaleFactor - 10 // Adjust Y position by -10
-                        canvas.drawText("Right Elbow: ${it.toInt()}°", x, y, textPaint)
-                    }
+                rightShoulderShoulderAngle?.let {
+                    val point = poseLandmarkerResult.landmarks().get(0).get(11) // Example: Right Shoulder (point 11)
+                    val x = point.x() * imageWidth * scaleFactor
+                    val y = point.y() * imageHeight * scaleFactor - 10 // Adjust Y position by +10
+                    canvas.drawText("URight Shoulder: ${it.toInt()}°", x, y, textPaint)
+                }
 
-                    rightShoulderShoulderAngle?.let {
-                        val point = poseLandmarkerResult.landmarks().get(0)
-                            .get(11) // Example: Right Shoulder (point 11)
-                        val x = point.x() * imageWidth * scaleFactor
-                        val y =
-                            point.y() * imageHeight * scaleFactor - 10 // Adjust Y position by +10
-                        canvas.drawText("URight Shoulder: ${it.toInt()}°", x, y, textPaint)
-                    }
+                leftElbowAngle?.let {
+                    val point = poseLandmarkerResult.landmarks().get(0).get(12) // Example: Left Shoulder (point 12)
+                    val x = point.x() * imageWidth * scaleFactor
+                    val y = point.y() * imageHeight * scaleFactor - 10 // Adjust Y position by +10
+                    canvas.drawText("ULeft Shoulder: ${it.toInt()}°", x, y, textPaint)
+                }
 
-                    leftElbowAngle?.let {
-                        val point = poseLandmarkerResult.landmarks().get(0)
-                            .get(12) // Example: Left Shoulder (point 12)
-                        val x = point.x() * imageWidth * scaleFactor
-                        val y =
-                            point.y() * imageHeight * scaleFactor - 10 // Adjust Y position by +10
-                        canvas.drawText("ULeft Shoulder: ${it.toInt()}°", x, y, textPaint)
-                    }
+                if (leftShoulderAngle != null) {
+                    if (rightShoulderAngle != null) {
+                        if(leftShoulderAngle < 90f &&  rightShoulderAngle < 90){
+                            quad = 0
+                        } else {
+                            quad = 1
+                        }
+                        if(leftShoulderAngle < 70 && rightShoulderAngle < 70) {
+                            stage = "down"
 
-                    if (leftShoulderAngle != null) {
-                        if (rightShoulderAngle != null) {
-                            if (leftShoulderAngle < 90f && rightShoulderAngle < 90) {
-                                quad = 0
-                            } else {
-                                quad = 1
-                            }
-                            if (leftShoulderAngle < 70 && rightShoulderAngle < 70) {
-                                stage = "down"
+                            pointPaint.color = Color.RED
+                            pointPaint.strokeWidth = 60f
+                            pointPaint.style = Paint.Style.FILL
 
-                                pointPaint.color = Color.RED
-                                pointPaint.strokeWidth = 60f
-                                pointPaint.style = Paint.Style.FILL
+                            overlayUpdateListener?.onStageUpdated(stage)
+                        }
 
-                                overlayUpdateListener?.onStageUpdated(stage)
-                            }
+                        if((leftShoulderAngle > 160 && rightShoulderAngle > 160) && (stage == "down")) {
+                            stage = "up"
 
-                            if ((leftShoulderAngle > 160 && rightShoulderAngle > 160) && (stage == "down")) {
-                                stage = "up"
+                            pointPaint.color = Color.YELLOW
+                            pointPaint.strokeWidth = 60f
+                            pointPaint.style = Paint.Style.FILL
 
-                                pointPaint.color = Color.YELLOW
-                                pointPaint.strokeWidth = 60f
-                                pointPaint.style = Paint.Style.FILL
+                            reps += 1
+                            overlayUpdateListener?.onStageUpdated(stage)
+                            overlayUpdateListener?.onRepsUpdated(reps)
+                        }
+                        if(quad == 1) {
+                            if(leftShoulderAngle > 160 && rightShoulderAngle > 160) {
+                                if (leftElbowAngle != null) {
+                                    if (rightElbowAngle != null) {
+                                        if(leftElbowAngle <= 165 && rightElbowAngle <= 165) {
+                                            sign = "Proper"
 
-                                reps += 1
-                                overlayUpdateListener?.onStageUpdated(stage)
-                                overlayUpdateListener?.onRepsUpdated(reps)
-                            }
-                            if (quad == 1) {
-                                if (leftShoulderAngle > 160 && rightShoulderAngle > 160) {
-                                    if (leftElbowAngle != null) {
-                                        if (rightElbowAngle != null) {
-                                            if (leftElbowAngle <= 165 && rightElbowAngle <= 165) {
-                                                sign = "Proper"
+                                            pointPaint.color = Color.GREEN
+                                            pointPaint.strokeWidth = 60f
+                                            pointPaint.style = Paint.Style.FILL
 
-                                                pointPaint.color = Color.GREEN
-                                                pointPaint.strokeWidth = 60f
-                                                pointPaint.style = Paint.Style.FILL
-
-                                            } else {
-                                                sign = "Too High"
-
-                                                pointPaint.color = Color.RED
-                                                pointPaint.strokeWidth = 60f
-                                                pointPaint.style = Paint.Style.FILL
-                                            }
-                                            overlayUpdateListener?.onSignUpdated(sign)
-                                        }
-                                    }
-
-                                } else if (leftShoulderShoulderAngle != null) {
-                                    if (rightShoulderShoulderAngle != null) {
-                                        if ((leftShoulderShoulderAngle > 90 && leftShoulderShoulderAngle <= 160) &&
-                                            (rightShoulderShoulderAngle > 90 && rightShoulderShoulderAngle <= 160)
-                                        ) {
-                                            if (leftElbowAngle != null) {
-                                                if (rightElbowAngle != null) {
-                                                    if (leftElbowAngle <= 150 && rightElbowAngle <= 150) {
-                                                        sign = "Proper"
-
-                                                        pointPaint.color = Color.GREEN
-                                                        pointPaint.strokeWidth = 60f
-                                                        pointPaint.style = Paint.Style.FILL
-
-                                                    } else {
-                                                        sign = "Too Wide"
-
-                                                        pointPaint.color = Color.RED
-                                                        pointPaint.strokeWidth = 60f
-                                                        pointPaint.style = Paint.Style.FILL
-                                                    }
-
-                                                    overlayUpdateListener?.onSignUpdated(sign)
-                                                }
-                                            }
                                         } else {
-                                            sign = ""
-                                            overlayUpdateListener?.onSignUpdated(sign)
+                                            sign = "Too High"
+
+                                            pointPaint.color = Color.RED
+                                            pointPaint.strokeWidth = 60f
+                                            pointPaint.style = Paint.Style.FILL
                                         }
+                                        overlayUpdateListener?.onSignUpdated(sign)
                                     }
                                 }
 
-                            } else {
-                                if ((leftShoulderAngle < 70) && (rightShoulderAngle < 70)) {
-                                    if (leftShoulderAngle < 30 && rightShoulderAngle < 30) {
-                                        sign = "Arms Too Low"
+                            } else if (leftShoulderShoulderAngle != null) {
+                                if (rightShoulderShoulderAngle != null) {
+                                    if((leftShoulderShoulderAngle > 90 && leftShoulderShoulderAngle <=160) &&
+                                        (rightShoulderShoulderAngle > 90 && rightShoulderShoulderAngle <=160) ) {
+                                        if (leftElbowAngle != null) {
+                                            if (rightElbowAngle != null) {
+                                                if(leftElbowAngle <= 150 && rightElbowAngle <= 150 ) {
+                                                    sign = "Proper"
 
-                                        pointPaint.color = Color.RED
-                                        pointPaint.strokeWidth = 60f
-                                        pointPaint.style = Paint.Style.FILL
+                                                    pointPaint.color = Color.GREEN
+                                                    pointPaint.strokeWidth = 60f
+                                                    pointPaint.style = Paint.Style.FILL
 
+                                                } else {
+                                                    sign = "Too Wide"
+
+                                                    pointPaint.color = Color.RED
+                                                    pointPaint.strokeWidth = 60f
+                                                    pointPaint.style = Paint.Style.FILL
+                                                }
+
+                                                overlayUpdateListener?.onSignUpdated(sign)
+                                            }
+                                        }
                                     } else {
-                                        sign = "Proper"
-
-                                        pointPaint.color = Color.YELLOW
-                                        pointPaint.strokeWidth = 60f
-                                        pointPaint.style = Paint.Style.FILL
+                                        sign = ""
+                                        overlayUpdateListener?.onSignUpdated(sign)
                                     }
-                                } else {
-                                    sign = ""
                                 }
-                                overlayUpdateListener?.onSignUpdated(sign)
                             }
+
+                        } else {
+                            if((leftShoulderAngle < 70) && (rightShoulderAngle < 70)) {
+                                if (leftShoulderAngle < 30 && rightShoulderAngle < 30) {
+                                    sign = "Arms Too Low"
+
+                                    pointPaint.color = Color.RED
+                                    pointPaint.strokeWidth = 60f
+                                    pointPaint.style = Paint.Style.FILL
+
+                                } else {
+                                    sign = "Proper"
+
+                                    pointPaint.color = Color.YELLOW
+                                    pointPaint.strokeWidth = 60f
+                                    pointPaint.style = Paint.Style.FILL
+                                }
+                            } else {
+                                sign = ""
+                            }
+                            overlayUpdateListener?.onSignUpdated(sign)
                         }
                     }
                 }
