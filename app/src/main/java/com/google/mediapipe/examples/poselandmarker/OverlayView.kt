@@ -161,14 +161,8 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                     if (rightShoulderAngle != null) {
                         if(leftShoulderAngle < 90f &&  rightShoulderAngle < 90){
                             quad = 0
-                            pointPaint.color = Color.RED
-                            pointPaint.strokeWidth = 60f
-                            pointPaint.style = Paint.Style.FILL
                         } else {
                             quad = 1
-                            pointPaint.color = Color.YELLOW
-                            pointPaint.strokeWidth = 60f
-                            pointPaint.style = Paint.Style.FILL
                         }
                         if(leftShoulderAngle < 70 && rightShoulderAngle < 70) {
                             stage = "down"
