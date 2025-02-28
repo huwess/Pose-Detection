@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.ContextCompat
@@ -90,71 +91,106 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 //                }
 
                 // This is for the Circle and Landmark Specifications
-                val importantLandmarkIndices = setOf(11, 12, 13, 14, 15, 16, 23, 24)
+                val importantLandmarkIndices = setOf(11, 12, 13, 14, 15, 16)
 
+                val indicators = mutableListOf<ProgressIndicator>()
+                val angles = calculatePoseAngles(points)
+                val leftShoulderAngle = angles["LHipLShoulderLElbow"] ?: 0f
+                val rightShoulderAngle = angles["RHipRShoulderRElbow"] ?: 0f
+                val leftElbowAngle = angles["LShoulderLElbowLWrist"] ?: 0f
+                val rightElbowAngle = angles["RShoulderRElbowRWrist"] ?: 0f
+                val leftShoulderShoulderAngle = angles["LElbowLShoulderRShoulder"] ?: 0f
+                val rightShoulderShoulderAngle = angles["RElbowRShoulderLShoulder"] ?: 0f
                 for (normalizedLandmark in landmark.withIndex()) {
                     val index = normalizedLandmark.index
-                    val point = normalizedLandmark.value
-
                     if (index in importantLandmarkIndices) {
-                        val x = point.x() * imageWidth * scaleFactor
-                        val y = point.y() * imageHeight * scaleFactor
-                        val radius = 32f // Adjust as needed
+                        val x = normalizedLandmark.value.x() * imageWidth * scaleFactor
+                        val y = normalizedLandmark.value.y() * imageHeight * scaleFactor
 
-                        canvas.drawCircle(x, y, radius, pointPaint) // Draw circles only for selected landmarks
+                        // Default progress values
+                        var progress = 0f
+                        var color = Color.RED // Default to red
+
+                        if (stage == "down") {
+                            progress = 0f
+                            color = if (sign == "Proper") Color.YELLOW else Color.RED
+                        } else if (stage == "up") {
+                            progress = 100f
+                            color = if (sign == "Proper") Color.GREEN else Color.RED
+                        }
+
+                        // Adjust progress based on angles
+                        when (index) {
+                            11, 12 -> { // Shoulders
+                                progress = (leftShoulderAngle / 180f) * 100f
+                            }
+                            13, 14 -> { // Elbows
+                                progress = (leftElbowAngle / 180f) * 100f
+                            }
+                            15, 16 -> { // Wrists
+                                progress = ((leftShoulderAngle + rightShoulderAngle + leftElbowAngle + rightElbowAngle) / 720f) * 100f
+                            }
+                            23, 24 -> { // Hips
+                                progress = (rightShoulderAngle / 180f) * 100f
+                            }
+                        }
+
+                        indicators.add(ProgressIndicator(
+                            x = x,
+                            y = y,
+                            progress = progress.coerceIn(0f, 100f),
+                            mainColor = color,
+                            bgColor = Color.LTGRAY
+                        ))
                     }
                 }
+                indicators.forEach { it.draw(canvas) }
 
                 // Calculate and draw angles
-                val angles = calculatePoseAngles(points)
-                val leftShoulderAngle = angles["LHipLShoulderLElbow"]
-                val rightShoulderAngle = angles["RHipRShoulderRElbow"]
-                val leftElbowAngle = angles["LShoulderLElbowLWrist"]
-                val rightElbowAngle = angles["RShoulderRElbowRWrist"]
-                val leftShoulderShoulderAngle = angles["LElbowLShoulderRShoulder"]
-                val rightShoulderShoulderAngle = angles["RElbowRShoulderLShoulder"]
+
+
 
                 //Visualize Angles
                 leftShoulderAngle?.let {
                     val point = poseLandmarkerResult.landmarks().get(0).get(12) // Example: Left Shoulder (point 12)
                     val x = point.x() * imageWidth * scaleFactor
                     val y = point.y() * imageHeight * scaleFactor + 20 // Adjust Y position by -10
-                    canvas.drawText("Left Shoulder: ${it.toInt()}°", x, y, textPaint)
+//                    canvas.drawText("Left Shoulder: ${it.toInt()}°", x, y, textPaint)
                 }
 
                 rightShoulderAngle?.let {
                     val point = poseLandmarkerResult.landmarks().get(0).get(11) // Example: Right Shoulder (point 11)
                     val x = point.x() * imageWidth * scaleFactor
                     val y = point.y() * imageHeight * scaleFactor + 20 // Adjust Y position by -10
-                    canvas.drawText("Right Shoulder: ${it.toInt()}°", x, y, textPaint)
+//                    canvas.drawText("Right Shoulder: ${it.toInt()}°", x, y, textPaint)
                 }
 
                 leftElbowAngle?.let {
                     val point = poseLandmarkerResult.landmarks().get(0).get(14) // Example: Left Elbow (point 14)
                     val x = point.x() * imageWidth * scaleFactor
                     val y = point.y() * imageHeight * scaleFactor - 10 // Adjust Y position by -10
-                    canvas.drawText("Left Elbow: ${it.toInt()}°", x, y, textPaint)
+//                    canvas.drawText("Left Elbow: ${it.toInt()}°", x, y, textPaint)
                 }
 
                 rightElbowAngle?.let {
                     val point = poseLandmarkerResult.landmarks().get(0).get(13) // Example: Right Elbow (point 13)
                     val x = point.x() * imageWidth * scaleFactor
                     val y = point.y() * imageHeight * scaleFactor - 10 // Adjust Y position by -10
-                    canvas.drawText("Right Elbow: ${it.toInt()}°", x, y, textPaint)
+//                    canvas.drawText("Right Elbow: ${it.toInt()}°", x, y, textPaint)
                 }
 
                 rightShoulderShoulderAngle?.let {
                     val point = poseLandmarkerResult.landmarks().get(0).get(11) // Example: Right Shoulder (point 11)
                     val x = point.x() * imageWidth * scaleFactor
                     val y = point.y() * imageHeight * scaleFactor - 10 // Adjust Y position by +10
-                    canvas.drawText("URight Shoulder: ${it.toInt()}°", x, y, textPaint)
+//                    canvas.drawText("URight Shoulder: ${it.toInt()}°", x, y, textPaint)
                 }
 
                 leftElbowAngle?.let {
                     val point = poseLandmarkerResult.landmarks().get(0).get(12) // Example: Left Shoulder (point 12)
                     val x = point.x() * imageWidth * scaleFactor
                     val y = point.y() * imageHeight * scaleFactor - 10 // Adjust Y position by +10
-                    canvas.drawText("ULeft Shoulder: ${it.toInt()}°", x, y, textPaint)
+//                    canvas.drawText("ULeft Shoulder: ${it.toInt()}°", x, y, textPaint)
                 }
 
                 if (leftShoulderAngle != null) {
@@ -167,9 +203,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                         if(leftShoulderAngle < 70 && rightShoulderAngle < 70) {
                             stage = "down"
 
-                            pointPaint.color = Color.RED
-                            pointPaint.strokeWidth = 60f
-                            pointPaint.style = Paint.Style.FILL
+                            //wrist, elbow and shoulder progress is zero or low during this part
 
                             overlayUpdateListener?.onStageUpdated(stage)
                         }
@@ -177,9 +211,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                         if((leftShoulderAngle > 160 && rightShoulderAngle > 160) && (stage == "down")) {
                             stage = "up"
 
-                            pointPaint.color = Color.YELLOW
-                            pointPaint.strokeWidth = 60f
-                            pointPaint.style = Paint.Style.FILL
+                            //wrist, elbow and shoulder progress is complete or 100%
 
                             reps += 1
                             overlayUpdateListener?.onStageUpdated(stage)
@@ -192,16 +224,12 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                                         if(leftElbowAngle <= 165 && rightElbowAngle <= 165) {
                                             sign = "Proper"
 
-                                            pointPaint.color = Color.GREEN
-                                            pointPaint.strokeWidth = 60f
-                                            pointPaint.style = Paint.Style.FILL
+                                            //wrist, elbow and shoulder progress is complete or 100%
 
                                         } else {
                                             sign = "Too High"
 
-                                            pointPaint.color = Color.RED
-                                            pointPaint.strokeWidth = 60f
-                                            pointPaint.style = Paint.Style.FILL
+                                            //wrist, elbow and shoulder progress is red but full in this part because it is too high
                                         }
                                         overlayUpdateListener?.onSignUpdated(sign)
                                     }
@@ -216,16 +244,12 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                                                 if(leftElbowAngle <= 150 && rightElbowAngle <= 150 ) {
                                                     sign = "Proper"
 
-                                                    pointPaint.color = Color.GREEN
-                                                    pointPaint.strokeWidth = 60f
-                                                    pointPaint.style = Paint.Style.FILL
+                                                    //wrist, elbow and shoulder progress is complete or 100%
 
                                                 } else {
                                                     sign = "Too Wide"
 
-                                                    pointPaint.color = Color.RED
-                                                    pointPaint.strokeWidth = 60f
-                                                    pointPaint.style = Paint.Style.FILL
+                                                    //wrist, elbow and shoulder progress is red and decreases because too  wide
                                                 }
 
                                                 overlayUpdateListener?.onSignUpdated(sign)
@@ -243,9 +267,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                                 if (leftShoulderAngle < 30 && rightShoulderAngle < 30) {
                                     sign = "Arms Too Low"
 
-                                    pointPaint.color = Color.RED
-                                    pointPaint.strokeWidth = 60f
-                                    pointPaint.style = Paint.Style.FILL
+                                    //wrist, elbow and shoulder progress is
 
                                 } else {
                                     sign = "Proper"
@@ -342,4 +364,38 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
         }
         invalidate()
     }
+
+    private inner class ProgressIndicator(
+        var x: Float = 0f,
+        var y: Float = 0f,
+        var progress: Float = 0f,
+        var mainColor: Int = Color.BLUE,
+        var bgColor: Int = Color.LTGRAY
+    ) {
+        private val strokeWidth = 12f
+        private val radius = 32f
+
+        fun draw(canvas: Canvas) {
+            // Draw background circle
+            val bgPaint = Paint().apply {
+                color = bgColor
+                style = Paint.Style.STROKE
+                strokeWidth = this@ProgressIndicator.strokeWidth
+                isAntiAlias = true
+            }
+            canvas.drawCircle(x, y, radius, bgPaint)
+
+            // Draw progress arc
+            val progressPaint = Paint().apply {
+                color = mainColor
+                style = Paint.Style.STROKE
+                strokeWidth = this@ProgressIndicator.strokeWidth
+                strokeCap = Paint.Cap.ROUND
+                isAntiAlias = true
+            }
+            val rect = RectF(x - radius, y - radius, x + radius, y + radius)
+            canvas.drawArc(rect, -90f, 360 * (progress / 100f), false, progressPaint)
+        }
+    }
 }
+
