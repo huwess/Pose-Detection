@@ -15,12 +15,14 @@ import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.max
 import kotlin.math.min
+import android.util.Log
 
 // Callback interface for updating the UI
 interface OverlayUpdateListener {
     fun onRepsUpdated(reps: Int)
     fun onStageUpdated(stage: String)
     fun onSignUpdated(sign: String)
+    fun onZAxisUpdated(zAxis: String)  // New method to update Z-Axis
 }
 
 class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
@@ -101,11 +103,22 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                 val rightElbowAngle = angles["RShoulderRElbowRWrist"] ?: 0f
                 val leftShoulderShoulderAngle = angles["LElbowLShoulderRShoulder"] ?: 0f
                 val rightShoulderShoulderAngle = angles["RElbowRShoulderLShoulder"] ?: 0f
+
+                // Track Z-axis values for forward/backward check
+                val leftShoulderZ = landmark[12].z() // Left shoulder
+                val rightShoulderZ = landmark[11].z() // Right shoulder
+                val leftElbowZ = landmark[14].z() // Left elbow
+                val rightElbowZ = landmark[13].z() // Right elbow
+
+
+
                 for (normalizedLandmark in landmark.withIndex()) {
                     val index = normalizedLandmark.index
                     if (index in importantLandmarkIndices) {
                         val x = normalizedLandmark.value.x() * imageWidth * scaleFactor
                         val y = normalizedLandmark.value.y() * imageHeight * scaleFactor
+
+                        val z = normalizedLandmark.value.z()
 
                         // Default progress values
                         var progress = 0f
@@ -124,8 +137,19 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                             11, 12 -> { // Shoulders
                                 progress = (leftShoulderAngle / 180f) * 100f
                             }
-                            13, 14 -> { // Elbows
-                                progress = (leftElbowAngle / 180f) * 100f
+                            13 -> { // Left Elbow
+                                if (quad == 0) {
+                                    progress = 50f // If quad == 0, set progress to 50f and skip angle calculation
+                                } else {
+                                    progress = (leftElbowAngle / 180f) * 100f // Normal angle calculation when quad != 0
+                                }
+                            }
+                            14 -> { // Right Elbow
+                                if (quad == 0) {
+                                    progress = 50f // If quad == 0, set progress to 50f and skip angle calculation
+                                } else {
+                                    progress = (rightElbowAngle / 180f) * 100f // Normal angle calculation when quad != 0
+                                }
                             }
                             15, 16 -> { // Wrists
                                 progress = ((leftShoulderAngle + rightShoulderAngle + leftElbowAngle + rightElbowAngle) / 720f) * 100f
@@ -134,6 +158,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                                 progress = (rightShoulderAngle / 180f) * 100f
                             }
                         }
+
 
                         indicators.add(ProgressIndicator(
                             x = x,
@@ -191,6 +216,62 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                     val x = point.x() * imageWidth * scaleFactor
                     val y = point.y() * imageHeight * scaleFactor - 10 // Adjust Y position by +10
 //                    canvas.drawText("ULeft Shoulder: ${it.toInt()}°", x, y, textPaint)
+                }
+
+                // Visual feedback for Z-axis values (too forward or too back)
+                Log.d("PoseDetection", "Left Shoulder Z: $leftShoulderZ")
+                Log.d("PoseDetection", "Right Shoulder Z: $rightShoulderZ")
+                Log.d("PoseDetection", "Left Elbow Z: $leftElbowZ")
+                Log.d("PoseDetection", "Right Elbow Z: $rightElbowZ")
+
+                // Left Shoulder Z-axis
+                if (leftShoulderZ > 0.05) { // Threshold for too forward
+                    sign = "Left Shoulder Too Forward"
+                    Log.d("PoseDetection", "Sign: $sign")
+                    overlayUpdateListener?.onZAxisUpdated(sign)
+
+                } else if (leftShoulderZ < -0.05) { // Threshold for too back
+                    sign = "Left Shoulder Too Back"
+                    Log.d("PoseDetection", "Sign: $sign")
+                    overlayUpdateListener?.onZAxisUpdated(sign)
+
+                }
+
+                // Right Shoulder Z-axis
+                else if (rightShoulderZ > 0.05) { // Threshold for too forward
+                    sign = "Right Shoulder Too Forward"
+                    Log.d("PoseDetection", "Sign: $sign")
+                    overlayUpdateListener?.onZAxisUpdated(sign)
+
+                } else if (rightShoulderZ < -0.05) { // Threshold for too back
+                    sign = "Right Shoulder Too Back"
+                    Log.d("PoseDetection", "Sign: $sign")
+                    overlayUpdateListener?.onZAxisUpdated(sign)
+
+                }
+
+                // Left Elbow Z-axis
+                if (leftElbowZ > 0.05) { // Threshold for too forward
+                    sign = "Left Elbow Too Forward"
+                    Log.d("PoseDetection", "Sign: $sign")
+                    overlayUpdateListener?.onZAxisUpdated(sign)
+
+                } else if (leftElbowZ < -0.05) { // Threshold for too back
+                    sign = "Left Elbow Too Back"
+                    Log.d("PoseDetection", "Sign: $sign")
+                    overlayUpdateListener?.onZAxisUpdated(sign)
+                }
+
+                // Right Elbow Z-axis
+                else if (rightElbowZ > 0.05) { // Threshold for too forward
+                    sign = "Right Elbow Too Forward"
+                    Log.d("PoseDetection", "Sign: $sign")
+                    overlayUpdateListener?.onZAxisUpdated(sign)
+
+                } else if (rightElbowZ < -0.05) { // Threshold for too back
+                    sign = "Right Elbow Too Back"
+                    Log.d("PoseDetection", "Sign: $sign")
+                    overlayUpdateListener?.onZAxisUpdated(sign)
                 }
 
                 if (leftShoulderAngle != null) {

@@ -72,7 +72,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener, Over
     private lateinit var repCountTextView: TextView
     private lateinit var stageTextView: TextView
     private lateinit var signTextView: TextView
-
+    private lateinit var zAxisTextView: TextView // New TextView for Z-Axis
 
 
     /** Blocking ML operations are performed using this executor */
@@ -133,6 +133,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener, Over
         repCountTextView = fragmentCameraBinding.cameraContainer.findViewById(R.id.repition_count)
         stageTextView = fragmentCameraBinding.cameraContainer.findViewById(R.id.stage)
         signTextView = fragmentCameraBinding.cameraContainer.findViewById(R.id.sign)
+        zAxisTextView = fragmentCameraBinding.cameraContainer.findViewById(R.id.z_axis)
 
         val overlayView: OverlayView = fragmentCameraBinding.cameraContainer.findViewById(R.id.overlay)
         overlayView.overlayUpdateListener = this
@@ -184,6 +185,13 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener, Over
     override fun onSignUpdated(sign: String) {
         requireActivity().runOnUiThread {
             signTextView.text = sign
+        }
+    }
+
+    // Add the following for updating the Z-Axis feedback
+    override fun onZAxisUpdated(zAxis: String) {
+        requireActivity().runOnUiThread {
+            zAxisTextView.text = zAxis
         }
     }
 
