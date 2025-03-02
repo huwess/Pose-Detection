@@ -113,6 +113,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 
                         if (stage == "down") {
                             progress = 0f
+
                             color = if (sign == "Proper") Color.YELLOW else Color.RED
                         } else if (stage == "up") {
                             progress = 100f
@@ -121,18 +122,33 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 
                         // Adjust progress based on angles
                         when (index) {
-                            11, 12 -> { // Shoulders
+                            11 -> { // Shoulders
+                                progress = (rightShoulderAngle / 180f) * 100f
+
+                            }
+                            12 -> { // Shoulders
                                 progress = (leftShoulderAngle / 180f) * 100f
                             }
-                            13, 14 -> { // Elbows
-                                progress = (leftElbowAngle / 180f) * 100f
+                            13 -> { // Elbows
+                                progress = (rightShoulderAngle / 175f) * 100f
+
+//                                if(quad == 0) {
+//                                    progress -= 50f
+//                                }
                             }
-                            15, 16 -> { // Wrists
-                                progress = ((leftShoulderAngle + rightShoulderAngle + leftElbowAngle + rightElbowAngle) / 720f) * 100f
+                            14 -> { // Elbows
+                                progress = (leftShoulderAngle / 175f) * 100f
+//                                if(quad == 0) {
+//                                    progress -= 50f
+//                                }
                             }
-                            23, 24 -> { // Hips
-                                progress = (rightShoulderAngle / 180f) * 100f
+                            15 -> { // Wrists
+                                progress = ((rightShoulderAngle + rightElbowAngle) / 360f) * 100f
                             }
+                            16 -> { // Wrists
+                                progress = ((leftShoulderAngle + leftElbowAngle) / 360f) * 100f
+                            }
+
                         }
 
                         indicators.add(ProgressIndicator(
@@ -221,7 +237,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                             if(leftShoulderAngle > 160 && rightShoulderAngle > 160) {
                                 if (leftElbowAngle != null) {
                                     if (rightElbowAngle != null) {
-                                        if(leftElbowAngle <= 165 && rightElbowAngle <= 165) {
+                                        if(leftElbowAngle <= 175 && rightElbowAngle <= 175) {
                                             sign = "Proper"
 
                                             //wrist, elbow and shoulder progress is complete or 100%
