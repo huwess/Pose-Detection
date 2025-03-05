@@ -191,7 +191,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                 }
 
                 leftElbowAngle?.let {
-                    val point = poseLandmarkerResult.landmarks().get(0).get(14) // Example: Left Elbow (point 14)
+                    val point = poseLandmarkerResult.landmarks().get(0).get(13) // Example: Left Elbow (point 14)
                     val x = point.x() * imageWidth * scaleFactor
                     val y = point.y() * imageHeight * scaleFactor - 10 // Adjust Y position by -10
                     val z = point.z()
@@ -200,7 +200,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                 }
 
                 rightElbowAngle?.let {
-                    val point = poseLandmarkerResult.landmarks().get(0).get(13) // Example: Right Elbow (point 13)
+                    val point = poseLandmarkerResult.landmarks().get(0).get(14) // Example: Right Elbow (point 13)
                     val x = point.x() * imageWidth * scaleFactor
                     val y = point.y() * imageHeight * scaleFactor - 10 // Adjust Y position by -10
                     val z = point.z()
