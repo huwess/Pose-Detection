@@ -194,14 +194,18 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                     val point = poseLandmarkerResult.landmarks().get(0).get(14) // Example: Left Elbow (point 14)
                     val x = point.x() * imageWidth * scaleFactor
                     val y = point.y() * imageHeight * scaleFactor - 10 // Adjust Y position by -10
-//                    canvas.drawText("Left Elbow: ${it.toInt()}°", x, y, textPaint)
+                    val z = point.z()
+                    overlayUpdateListener?.onZAxisUpdated(z.toString())
+                    canvas.drawText("Left Elbow: ${z}°", x, y, textPaint)
                 }
 
                 rightElbowAngle?.let {
                     val point = poseLandmarkerResult.landmarks().get(0).get(13) // Example: Right Elbow (point 13)
                     val x = point.x() * imageWidth * scaleFactor
                     val y = point.y() * imageHeight * scaleFactor - 10 // Adjust Y position by -10
-//                    canvas.drawText("Right Elbow: ${it.toInt()}°", x, y, textPaint)
+                    val z = point.z()
+                    overlayUpdateListener?.onZAxisUpdated(z.toString())
+                    canvas.drawText("Right Elbow: ${z}°", x, y, textPaint)
                 }
 
                 rightShoulderShoulderAngle?.let {
@@ -224,42 +228,44 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                 Log.d("PoseDetection", "Left Elbow Z: $leftElbowZ")
                 Log.d("PoseDetection", "Right Elbow Z: $rightElbowZ")
 
-                // Left Shoulder Z-axis
-                if (leftShoulderZ > 0.05) { // Threshold for too forward
-                    sign = "Left Shoulder Too Forward"
-                    Log.d("PoseDetection", "Sign: $sign")
-                    overlayUpdateListener?.onZAxisUpdated(sign)
+//                // Left Shoulder Z-axis
+//                if (leftShoulderZ > 0.05) { // Threshold for too forward
+//                    sign = "Left Shoulder Too Forward"
+//                    Log.d("PoseDetection", "Sign: $sign")
+//                    overlayUpdateListener?.onZAxisUpdated(sign)
+//
+//                } else if (leftShoulderZ < -0.05) { // Threshold for too back
+//                    sign = "Left Shoulder Too Back"
+//                    Log.d("PoseDetection", "Sign: $sign")
+//                    overlayUpdateListener?.onZAxisUpdated(sign)
+//
+//                }
 
-                } else if (leftShoulderZ < -0.05) { // Threshold for too back
-                    sign = "Left Shoulder Too Back"
-                    Log.d("PoseDetection", "Sign: $sign")
-                    overlayUpdateListener?.onZAxisUpdated(sign)
-
-                }
-
-                // Right Shoulder Z-axis
-                else if (rightShoulderZ > 0.05) { // Threshold for too forward
-                    sign = "Right Shoulder Too Forward"
-                    Log.d("PoseDetection", "Sign: $sign")
-                    overlayUpdateListener?.onZAxisUpdated(sign)
-
-                } else if (rightShoulderZ < -0.05) { // Threshold for too back
-                    sign = "Right Shoulder Too Back"
-                    Log.d("PoseDetection", "Sign: $sign")
-                    overlayUpdateListener?.onZAxisUpdated(sign)
-
-                }
+//                // Right Shoulder Z-axis
+//                else if (rightShoulderZ > 0.05) { // Threshold for too forward
+//                    sign = "Right Shoulder Too Forward"
+//                    Log.d("PoseDetection", "Sign: $sign")
+//                    overlayUpdateListener?.onZAxisUpdated(sign)
+//
+//                } else if (rightShoulderZ < -0.05) { // Threshold for too back
+//                    sign = "Right Shoulder Too Back"
+//                    Log.d("PoseDetection", "Sign: $sign")
+//                    overlayUpdateListener?.onZAxisUpdated(sign)
+//
+//                }
 
                 // Left Elbow Z-axis
                 if (leftElbowZ > 0.05) { // Threshold for too forward
                     sign = "Left Elbow Too Forward"
                     Log.d("PoseDetection", "Sign: $sign")
                     overlayUpdateListener?.onZAxisUpdated(sign)
+                    overlayUpdateListener?.onSignUpdated("Left Elbow Too Forward")
 
                 } else if (leftElbowZ < -0.05) { // Threshold for too back
                     sign = "Left Elbow Too Back"
                     Log.d("PoseDetection", "Sign: $sign")
                     overlayUpdateListener?.onZAxisUpdated(sign)
+                    overlayUpdateListener?.onSignUpdated("Left Elbow Too Back")
                 }
 
                 // Right Elbow Z-axis
@@ -267,11 +273,13 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                     sign = "Right Elbow Too Forward"
                     Log.d("PoseDetection", "Sign: $sign")
                     overlayUpdateListener?.onZAxisUpdated(sign)
+                    overlayUpdateListener?.onSignUpdated("Right Elbow Too Forward")
 
                 } else if (rightElbowZ < -0.05) { // Threshold for too back
                     sign = "Right Elbow Too Back"
                     Log.d("PoseDetection", "Sign: $sign")
                     overlayUpdateListener?.onZAxisUpdated(sign)
+                    overlayUpdateListener?.onSignUpdated("Right Elbow Too Back")
                 }
 
                 if (leftShoulderAngle != null) {

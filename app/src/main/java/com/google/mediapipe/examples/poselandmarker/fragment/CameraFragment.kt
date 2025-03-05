@@ -41,6 +41,7 @@ import com.google.mediapipe.examples.poselandmarker.MainViewModel
 import com.google.mediapipe.examples.poselandmarker.OverlayUpdateListener
 import com.google.mediapipe.examples.poselandmarker.OverlayView
 import com.google.mediapipe.examples.poselandmarker.R
+import com.google.mediapipe.examples.poselandmarker.TextToSpeechHelper
 import com.google.mediapipe.examples.poselandmarker.databinding.FragmentCameraBinding
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import java.util.Locale
@@ -68,6 +69,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener, Over
     private var camera: Camera? = null
     private var cameraProvider: ProcessCameraProvider? = null
     private var cameraFacing = CameraSelector.LENS_FACING_FRONT
+    private lateinit var textToSpeechHelper: TextToSpeechHelper
 
     private lateinit var repCountTextView: TextView
     private lateinit var stageTextView: TextView
@@ -147,6 +149,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener, Over
 
         // Initialize our background executor
         backgroundExecutor = Executors.newSingleThreadExecutor()
+        textToSpeechHelper = TextToSpeechHelper(requireContext())
 
         // Wait for the views to be properly laid out
         fragmentCameraBinding.viewFinder.post {
@@ -184,6 +187,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener, Over
 
     override fun onSignUpdated(sign: String) {
         requireActivity().runOnUiThread {
+            textToSpeechHelper.speakText(sign)
             signTextView.text = sign
         }
     }
