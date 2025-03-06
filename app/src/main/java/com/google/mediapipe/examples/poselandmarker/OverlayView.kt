@@ -127,6 +127,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                 val rightElbowAngle = angles["RShoulderRElbowRWrist"] ?: 0f
                 val leftShoulderShoulderAngle = angles["LElbowLShoulderRShoulder"] ?: 0f
                 val rightShoulderShoulderAngle = angles["RElbowRShoulderLShoulder"] ?: 0f
+
                 for (normalizedLandmark in landmark.withIndex()) {
                     val index = normalizedLandmark.index
                     if (index in importantLandmarkIndices) {
@@ -191,7 +192,6 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                 indicators.forEach { it.draw(canvas) }
 
                 // Calculate and draw angles
-
 
 
                 //Visualize Angles
@@ -337,9 +337,37 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                         }
                     }
                 }
+
+                //Plan A
+                    stage = zElbowCorrection()
+                    overlayUpdateListener?.onStageUpdated(stage)
+
+                // Plan B
+//                if (leftElbowZ + leftShoulderZ < -0.6) { // if it good
+//                    stage = "Elbows just right"
+//                    overlayUpdateListener?.onStageUpdated(stage)
+//                } else { // if too back
+//                    stage = "Elbows is improper"
+//                    overlayUpdateListener?.onStageUpdated (stage)
+//                }
+
 //                // Track and update reps/stage/sign
 //                leftElbowAngle?.let { updateRepsAndStage(it) }
 //                leftElbowAngle?.let { updateSign(it) }
+            }
+        }
+    }
+
+    private fun zElbowCorrection () : String {
+        return when {
+            leftElbowZ + leftShoulderZ < -0.6 -> {
+                "Elbows on the right position"
+            }
+            leftElbowZ + leftShoulderZ < 0.6 -> {
+                "Lean Elbows Forwards" // Elbows are too back
+            }
+            else -> {
+                "Lean Elbows Backwards" // Elbows are too forward
             }
         }
     }
