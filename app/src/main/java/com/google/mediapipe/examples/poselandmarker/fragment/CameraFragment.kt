@@ -74,7 +74,10 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener, Over
     private lateinit var repCountTextView: TextView
     private lateinit var stageTextView: TextView
     private lateinit var signTextView: TextView
-    private lateinit var zAxisTextView: TextView // New TextView for Z-Axis
+    private lateinit var rightZ: TextView // New TextView for Z-Axis
+    private lateinit var leftZ: TextView
+    private lateinit var rightShoulderZ: TextView
+    private lateinit var leftShoulderZ: TextView
 
 
     /** Blocking ML operations are performed using this executor */
@@ -135,7 +138,10 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener, Over
         repCountTextView = fragmentCameraBinding.cameraContainer.findViewById(R.id.repition_count)
         stageTextView = fragmentCameraBinding.cameraContainer.findViewById(R.id.stage)
         signTextView = fragmentCameraBinding.cameraContainer.findViewById(R.id.sign)
-        zAxisTextView = fragmentCameraBinding.cameraContainer.findViewById(R.id.z_axis)
+        rightZ = fragmentCameraBinding.cameraContainer.findViewById(R.id.rz_axis)
+        leftZ = fragmentCameraBinding.cameraContainer.findViewById(R.id.lz_axis)
+        rightShoulderZ = fragmentCameraBinding.cameraContainer.findViewById(R.id.rshz_axis)
+        leftShoulderZ = fragmentCameraBinding.cameraContainer.findViewById(R.id.lshz_axis)
 
         val overlayView: OverlayView = fragmentCameraBinding.cameraContainer.findViewById(R.id.overlay)
         overlayView.overlayUpdateListener = this
@@ -187,17 +193,28 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener, Over
 
     override fun onSignUpdated(sign: String) {
         requireActivity().runOnUiThread {
-            textToSpeechHelper.speakText(sign)
+//            textToSpeechHelper.speakText(sign)
             signTextView.text = sign
         }
     }
 
-    // Add the following for updating the Z-Axis feedback
-    override fun onZAxisUpdated(zAxis: String) {
-        requireActivity().runOnUiThread {
-            zAxisTextView.text = zAxis
-        }
+    override fun onLeftZAxisUpdated(zAxis: String) {
+        leftZ.text = zAxis
     }
+
+    override fun onRightZAxisUpdated(zAxis: String) {
+        rightZ.text = zAxis
+    }
+
+    override fun onLeftShoulderZAxisUpdated(zAxis: String) {
+        leftShoulderZ.text = zAxis
+    }
+
+    override fun onRightShoulderZAxisUpdated(zAxis: String) {
+        rightShoulderZ.text = zAxis
+    }
+
+
 
     private fun initBottomSheetControls() {
         // init bottom sheet settings

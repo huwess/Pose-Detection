@@ -22,7 +22,10 @@ interface OverlayUpdateListener {
     fun onRepsUpdated(reps: Int)
     fun onStageUpdated(stage: String)
     fun onSignUpdated(sign: String)
-    fun onZAxisUpdated(zAxis: String)  // New method to update Z-Axis
+    fun onRightZAxisUpdated(zAxis: String)
+    fun onLeftZAxisUpdated(zAxis: String)// New method to update Z-Axis
+    fun onRightShoulderZAxisUpdated(zAxis: String)
+    fun onLeftShoulderZAxisUpdated(zAxis: String)
 }
 
 class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
@@ -41,6 +44,13 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
     private var sign = ""
     private var quad = 0
     var overlayUpdateListener: OverlayUpdateListener? = null
+
+
+    // Variables to store the Z-axis values
+    private var leftElbowZ: Float = 0f
+    private var rightElbowZ: Float = 0f
+    private var leftShoulderZ: Float = 0f
+    private var rightShoulderZ: Float = 0f
 
     init {
         initPaints()
@@ -81,16 +91,30 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                     )
                 }
 
-                // Draw landmarks and connections
-//                PoseLandmarker.POSE_LANDMARKS.forEach {
-//                    canvas.drawLine(
-//                        points[it.start()].first,
-//                        points[it.start()].second,
-//                        points[it.end()].first,
-//                        points[it.end()].second,
-//                        linePaint
-//                    )
-//                }
+                // Extract the Z-values for left and right shoulders, elbows
+                for (normalizedLandmark in landmark.withIndex()) {
+                    val index = normalizedLandmark.index
+                    val landmarkz = normalizedLandmark.value
+
+                    val z = landmarkz.z() // Z-axis value for this landmark
+
+                    // Store Z-axis values in respective variables
+                    when (index) {
+                        11 -> { // Right Shoulder (point 11)
+                            rightShoulderZ = z
+                        }
+                        12 -> { // Left Shoulder (point 12)
+                            leftShoulderZ = z
+                        }
+                        13 -> { // Right Elbow (point 13)
+                            rightElbowZ = z
+                        }
+                        14 -> { // Left Elbow (point 14)
+                            leftElbowZ = z
+                        }
+                    }
+                }
+
 
                 // This is for the Circle and Landmark Specifications
                 val importantLandmarkIndices = setOf(11, 12, 13, 14, 15, 16)
@@ -103,22 +127,13 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                 val rightElbowAngle = angles["RShoulderRElbowRWrist"] ?: 0f
                 val leftShoulderShoulderAngle = angles["LElbowLShoulderRShoulder"] ?: 0f
                 val rightShoulderShoulderAngle = angles["RElbowRShoulderLShoulder"] ?: 0f
-
-                // Track Z-axis values for forward/backward check
-                val leftShoulderZ = landmark[12].z() // Left shoulder
-                val rightShoulderZ = landmark[11].z() // Right shoulder
-                val leftElbowZ = landmark[14].z() // Left elbow
-                val rightElbowZ = landmark[13].z() // Right elbow
-
-
-
                 for (normalizedLandmark in landmark.withIndex()) {
                     val index = normalizedLandmark.index
                     if (index in importantLandmarkIndices) {
                         val x = normalizedLandmark.value.x() * imageWidth * scaleFactor
                         val y = normalizedLandmark.value.y() * imageHeight * scaleFactor
 
-                        val z = normalizedLandmark.value.z()
+                        val z = normalizedLandmark.value.z() * imageWidth * scaleFactor
 
                         // Default progress values
                         var progress = 0f
@@ -126,6 +141,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 
                         if (stage == "down") {
                             progress = 0f
+
                             color = if (sign == "Proper") Color.YELLOW else Color.RED
                         } else if (stage == "up") {
                             progress = 100f
@@ -134,31 +150,34 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 
                         // Adjust progress based on angles
                         when (index) {
-                            11, 12 -> { // Shoulders
+                            11 -> { // Shoulders
+                                progress = (rightShoulderAngle / 180f) * 100f
+
+                            }
+                            12 -> { // Shoulders
                                 progress = (leftShoulderAngle / 180f) * 100f
                             }
-                            13 -> { // Left Elbow
-                                if (quad == 0) {
-                                    progress = 50f // If quad == 0, set progress to 50f and skip angle calculation
-                                } else {
-                                    progress = (leftElbowAngle / 180f) * 100f // Normal angle calculation when quad != 0
-                                }
-                            }
-                            14 -> { // Right Elbow
-                                if (quad == 0) {
-                                    progress = 50f // If quad == 0, set progress to 50f and skip angle calculation
-                                } else {
-                                    progress = (rightElbowAngle / 180f) * 100f // Normal angle calculation when quad != 0
-                                }
-                            }
-                            15, 16 -> { // Wrists
-                                progress = ((leftShoulderAngle + rightShoulderAngle + leftElbowAngle + rightElbowAngle) / 720f) * 100f
-                            }
-                            23, 24 -> { // Hips
-                                progress = (rightShoulderAngle / 180f) * 100f
-                            }
-                        }
+                            13 -> { // Elbows
+                                progress = (rightShoulderAngle / 175f) * 100f
 
+//                                if(quad == 0) {
+//                                    progress -= 50f
+//                                }
+                            }
+                            14 -> { // Elbows
+                                progress = (leftShoulderAngle / 175f) * 100f
+//                                if(quad == 0) {
+//                                    progress -= 50f
+//                                }
+                            }
+                            15 -> { // Wrists
+                                progress = ((rightShoulderAngle + rightElbowAngle) / 360f) * 100f
+                            }
+                            16 -> { // Wrists
+                                progress = ((leftShoulderAngle + leftElbowAngle) / 360f) * 100f
+                            }
+
+                        }
 
                         indicators.add(ProgressIndicator(
                             x = x,
@@ -176,129 +195,57 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 
 
                 //Visualize Angles
-                leftShoulderAngle?.let {
+                leftShoulderAngle.let {
                     val point = poseLandmarkerResult.landmarks().get(0).get(12) // Example: Left Shoulder (point 12)
                     val x = point.x() * imageWidth * scaleFactor
                     val y = point.y() * imageHeight * scaleFactor + 20 // Adjust Y position by -10
+                    val z = point.z()
+                    overlayUpdateListener?.onLeftShoulderZAxisUpdated(z.toString())
 //                    canvas.drawText("Left Shoulder: ${it.toInt()}°", x, y, textPaint)
                 }
 
-                rightShoulderAngle?.let {
+                rightShoulderAngle.let {
                     val point = poseLandmarkerResult.landmarks().get(0).get(11) // Example: Right Shoulder (point 11)
                     val x = point.x() * imageWidth * scaleFactor
                     val y = point.y() * imageHeight * scaleFactor + 20 // Adjust Y position by -10
+                    val z = point.z()
+                    overlayUpdateListener?.onRightShoulderZAxisUpdated(z.toString())
 //                    canvas.drawText("Right Shoulder: ${it.toInt()}°", x, y, textPaint)
                 }
 
-                leftElbowAngle?.let {
+                leftElbowAngle.let {
                     val point = poseLandmarkerResult.landmarks().get(0).get(14) // Example: Left Elbow (point 14)
                     val x = point.x() * imageWidth * scaleFactor
-                    val y = point.y() * imageHeight * scaleFactor - 50 // Adjust Y position by -10
-                    val z = point.z()
-                //    overlayUpdateListener?.onZAxisUpdated(z.toString())
-                    canvas.drawText("Left Elbow: ${z}°", x, y, textPaint)
+                    val y = point.y() * imageHeight * scaleFactor - 10 // Adjust Y position by -10
+                    val  z = point.z()
+                    overlayUpdateListener?.onLeftZAxisUpdated(z.toString())
+                    canvas.drawText("Left Elbow: ${it.toInt()}°", x, y, textPaint)
                 }
 
-                rightElbowAngle?.let {
+                rightElbowAngle.let {
                     val point = poseLandmarkerResult.landmarks().get(0).get(13) // Example: Right Elbow (point 13)
                     val x = point.x() * imageWidth * scaleFactor
-                    val y = point.y() * imageHeight * scaleFactor - 50 // Adjust Y position by -10
-                    val z = point.z()
-                //    overlayUpdateListener?.onZAxisUpdated(z.toString())
-                    canvas.drawText("Right Elbow: ${z}°", x, y, textPaint)
+                    val y = point.y() * imageHeight * scaleFactor - 10 // Adjust Y position by -10
+                    val  z = point.z()
+                    overlayUpdateListener?.onRightZAxisUpdated(z.toString())
+                    canvas.drawText("Right Elbow: ${it.toInt()}°", x, y, textPaint)
                 }
 
-                rightShoulderShoulderAngle?.let {
+                rightShoulderShoulderAngle.let {
                     val point = poseLandmarkerResult.landmarks().get(0).get(11) // Example: Right Shoulder (point 11)
                     val x = point.x() * imageWidth * scaleFactor
                     val y = point.y() * imageHeight * scaleFactor - 10 // Adjust Y position by +10
-//                    canvas.drawText("URight Shoulder: ${it.toInt()}°", x, y, textPaint)
+                    canvas.drawText("URight Shoulder: ${it.toInt()}°", x, y, textPaint)
                 }
 
-                leftElbowAngle?.let {
+                leftShoulderShoulderAngle.let {
                     val point = poseLandmarkerResult.landmarks().get(0).get(12) // Example: Left Shoulder (point 12)
                     val x = point.x() * imageWidth * scaleFactor
                     val y = point.y() * imageHeight * scaleFactor - 10 // Adjust Y position by +10
-//                    canvas.drawText("ULeft Shoulder: ${it.toInt()}°", x, y, textPaint)
+                    canvas.drawText("ULeft Shoulder: ${it.toInt()}°", x, y, textPaint)
                 }
 
-                // Visual feedback for Z-axis values (too forward or too back)
-                Log.d("PoseDetection", "Left Shoulder Z: $leftShoulderZ")
-                Log.d("PoseDetection", "Right Shoulder Z: $rightShoulderZ")
-                Log.d("PoseDetection", "Left Elbow Z: $leftElbowZ")
-                Log.d("PoseDetection", "Right Elbow Z: $rightElbowZ")
 
-//                // Left Shoulder Z-axis
-//                if (leftShoulderZ > 0.05) { // Threshold for too forward
-//                    sign = "Left Shoulder Too Forward"
-//                    Log.d("PoseDetection", "Sign: $sign")
-//                    overlayUpdateListener?.onZAxisUpdated(sign)
-//
-//                } else if (leftShoulderZ < -0.05) { // Threshold for too back
-//                    sign = "Left Shoulder Too Back"
-//                    Log.d("PoseDetection", "Sign: $sign")
-//                    overlayUpdateListener?.onZAxisUpdated(sign)
-//
-//                }
-
-//                // Right Shoulder Z-axis
-//                else if (rightShoulderZ > 0.05) { // Threshold for too forward
-//                    sign = "Right Shoulder Too Forward"
-//                    Log.d("PoseDetection", "Sign: $sign")
-//                    overlayUpdateListener?.onZAxisUpdated(sign)
-//
-//                } else if (rightShoulderZ < -0.05) { // Threshold for too back
-//                    sign = "Right Shoulder Too Back"
-//                    Log.d("PoseDetection", "Sign: $sign")
-//                    overlayUpdateListener?.onZAxisUpdated(sign)
-//
-//                }
-
-                // Left Elbow Z-axis
-                var elbowAverage = abs((leftElbowZ + rightElbowZ) / 2)
-
-//                if (elbowAverage > -0.9){
-//                    sign = "Elbows Too Forward"
-//                    Log.d("PoseDetection", "Sign: $sign")
-//                    overlayUpdateListener?.onZAxisUpdated(sign)
-//                    overlayUpdateListener?.onSignUpdated("Too Forward")
-//                }
-
-                if (elbowAverage < 0.5 && elbowAverage > 0.3) {
-                    sign = "Elbows Too Back"
-                    Log.d("PoseDetection", "Sign: $sign")
-                    overlayUpdateListener?.onZAxisUpdated(sign)
-                    overlayUpdateListener?.onSignUpdated("Too Back")
-                } else {
-                    overlayUpdateListener?.onZAxisUpdated(elbowAverage.toString())
-                }
-
-//                if (leftElbowZ > 1.0) { // Threshold for too forward
-//                    sign = "Left Elbow Too Forward"
-//                    Log.d("PoseDetection", "Sign: $sign")
-//                    overlayUpdateListener?.onZAxisUpdated(sign)
-//                    overlayUpdateListener?.onSignUpdated("Left Elbow Too Forward")
-//
-//                } else if (leftElbowZ < -1.0) { // Threshold for too back
-//                    sign = "Left Elbow Too Back"
-//                    Log.d("PoseDetection", "Sign: $sign")
-//                    overlayUpdateListener?.onZAxisUpdated(sign)
-//                    overlayUpdateListener?.onSignUpdated("Left Elbow Too Back")
-//                }
-
-                // Right Elbow Z-axis
-//                if (rightElbowZ > 0.05) { // Threshold for too forward
-//                    sign = "Right Elbow Too Forward"
-//                    Log.d("PoseDetection", "Sign: $sign")
-//                    overlayUpdateListener?.onZAxisUpdated(sign)
-//                    overlayUpdateListener?.onSignUpdated("Right Elbow Too Forward")
-//
-//                } else if (rightElbowZ < -0.05) { // Threshold for too back
-//                    sign = "Right Elbow Too Back"
-//                    Log.d("PoseDetection", "Sign: $sign")
-//                    overlayUpdateListener?.onZAxisUpdated(sign)
-//                    overlayUpdateListener?.onSignUpdated("Right Elbow Too Back")
-//                }
 
                 if (leftShoulderAngle != null) {
                     if (rightShoulderAngle != null) {
@@ -328,7 +275,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                             if(leftShoulderAngle > 160 && rightShoulderAngle > 160) {
                                 if (leftElbowAngle != null) {
                                     if (rightElbowAngle != null) {
-                                        if(leftElbowAngle <= 165 && rightElbowAngle <= 165) {
+                                        if(leftElbowAngle <= 175 && rightElbowAngle <= 175) {
                                             sign = "Proper"
 
                                             //wrist, elbow and shoulder progress is complete or 100%
@@ -479,8 +426,8 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
         var mainColor: Int = Color.BLUE,
         var bgColor: Int = Color.LTGRAY
     ) {
-        private val strokeWidth = 12f
-        private val radius = 32f
+        private val strokeWidth = 24f
+        private val radius = 48f
 
         fun draw(canvas: Canvas) {
             // Draw background circle
