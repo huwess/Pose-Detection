@@ -76,37 +76,52 @@
                 android:textSize="24sp"
                 />
         </TableRow>
+        <TableRow>
+            <TextView
+                android:text="Distance:"
+                android:textColor="@color/Red"
+                android:padding="2dp"
+                android:textSize="24sp"
+                />
+            <TextView
+                android:id="@+id/distance"
+                android:text=""
+                android:textColor="@color/Red"
+                android:padding="2dp"
+                android:textSize="24sp"
+                />
+        </TableRow>
         <!-- New TableRow for Z-Axis Feedback -->
-        <TableRow>
-            <TextView
-                android:text="L-Z-Axis:"
-                android:textColor="@color/Red"
-                android:padding="2dp"
-                android:textSize="24sp"
-                />
-            <TextView
-                android:id="@+id/lz_axis"
-                android:text=""
-                android:textColor="@color/Red"
-                android:padding="2dp"
-                android:textSize="24sp"
-                />
-        </TableRow>
-        <TableRow>
-            <TextView
-                android:text="R-Z-Axis:"
-                android:textColor="@color/Red"
-                android:padding="2dp"
-                android:textSize="24sp"
-                />
-            <TextView
-                android:id="@+id/rz_axis"
-                android:text=""
-                android:textColor="@color/Red"
-                android:padding="2dp"
-                android:textSize="24sp"
-                />
-        </TableRow>
+<!--        <TableRow>-->
+<!--            <TextView-->
+<!--                android:text="L-Z-Axis:"-->
+<!--                android:textColor="@color/Red"-->
+<!--                android:padding="2dp"-->
+<!--                android:textSize="24sp"-->
+<!--                />-->
+<!--            <TextView-->
+<!--                android:id="@+id/lz_axis"-->
+<!--                android:text=""-->
+<!--                android:textColor="@color/Red"-->
+<!--                android:padding="2dp"-->
+<!--                android:textSize="24sp"-->
+<!--                />-->
+<!--        </TableRow>-->
+<!--        <TableRow>-->
+<!--            <TextView-->
+<!--                android:text="R-Z-Axis:"-->
+<!--                android:textColor="@color/Red"-->
+<!--                android:padding="2dp"-->
+<!--                android:textSize="24sp"-->
+<!--                />-->
+<!--            <TextView-->
+<!--                android:id="@+id/rz_axis"-->
+<!--                android:text=""-->
+<!--                android:textColor="@color/Red"-->
+<!--                android:padding="2dp"-->
+<!--                android:textSize="24sp"-->
+<!--                />-->
+<!--        </TableRow>-->
         <TableRow>
             <TextView
                 android:text="LSH-Z-Axis:"

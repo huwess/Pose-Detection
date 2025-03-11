@@ -119,6 +119,25 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                 // This is for the Circle and Landmark Specifications
                 val importantLandmarkIndices = setOf(11, 12, 13, 14, 15, 16)
 
+
+                val leftdistance = calculateDistance(points[14], points[12])
+                val rightdistance = calculateDistance(points[13], points[11])
+                Log.d("DISTANCE", "$leftdistance")
+                val camDistance = calculateDistanceToCamera(points[11], points[12])
+                overlayUpdateListener?.onLeftZAxisUpdated("$camDistance")
+
+//                if (camDistance > 200f) {
+//                    Log.d("CAM DISTANCE", "You are too far from the camera")
+//                } else if (camDistance < 70f) {
+//                    Log.d("CAM DISTANCE", "You are too close from the camera")
+//
+//                } else {
+//                    Log.d("CAM DISTANCE", "Good Distance")
+//                }
+                overlayUpdateListener?.onLeftShoulderZAxisUpdated("$leftdistance")
+                overlayUpdateListener?.onRightShoulderZAxisUpdated("$rightdistance")
+
+
                 val indicators = mutableListOf<ProgressIndicator>()
                 val angles = calculatePoseAngles(points)
                 val leftShoulderAngle = angles["LHipLShoulderLElbow"] ?: 0f
@@ -200,7 +219,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                     val x = point.x() * imageWidth * scaleFactor
                     val y = point.y() * imageHeight * scaleFactor + 20 // Adjust Y position by -10
                     val z = point.z()
-                    overlayUpdateListener?.onLeftShoulderZAxisUpdated(z.toString())
+//                    overlayUpdateListener?.onLeftShoulderZAxisUpdated(z.toString())
 //                    canvas.drawText("Left Shoulder: ${it.toInt()}°", x, y, textPaint)
                 }
 
@@ -209,7 +228,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                     val x = point.x() * imageWidth * scaleFactor
                     val y = point.y() * imageHeight * scaleFactor + 20 // Adjust Y position by -10
                     val z = point.z()
-                    overlayUpdateListener?.onRightShoulderZAxisUpdated(z.toString())
+//                    overlayUpdateListener?.onRightShoulderZAxisUpdated(z.toString())
 //                    canvas.drawText("Right Shoulder: ${it.toInt()}°", x, y, textPaint)
                 }
 
@@ -218,7 +237,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                     val x = point.x() * imageWidth * scaleFactor
                     val y = point.y() * imageHeight * scaleFactor - 10 // Adjust Y position by -10
                     val  z = point.z()
-                    overlayUpdateListener?.onLeftZAxisUpdated(z.toString())
+//                    overlayUpdateListener?.onLeftZAxisUpdated(z.toString())
                     canvas.drawText("Left Elbow: ${it.toInt()}°", x, y, textPaint)
                 }
 
@@ -317,14 +336,19 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                             }
 
                         } else {
+
+
                             if((leftShoulderAngle < 70) && (rightShoulderAngle < 70)) {
-                                if (leftShoulderAngle < 30 && rightShoulderAngle < 30) {
+                                if(leftdistance > 220 || rightdistance > 220) {
+                                    sign = "Lean arms Forward"
+                                }
+                                if (leftElbowAngle < 30 && leftElbowAngle < 30) {
                                     sign = "Arms Too Low"
 
                                     //wrist, elbow and shoulder progress is
 
                                 } else {
-                                    sign = "Proper"
+//                                    sign = "Proper"
 
                                     pointPaint.color = Color.YELLOW
                                     pointPaint.strokeWidth = 60f
@@ -401,6 +425,33 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 
         return angle
     }
+
+    private fun calculateDistance(pointA: Pair<Float, Float>, pointB: Pair<Float, Float>): Float {
+        val deltaX = pointB.first - pointA.first
+        val deltaY = pointB.second - pointA.second
+        return Math.sqrt((deltaX * deltaX + deltaY * deltaY).toDouble()).toFloat()
+    }
+
+    private fun calculateDistanceToCamera(leftShoulder: Pair<Float, Float>, rightShoulder: Pair<Float, Float>): Float {
+        // Real-world average shoulder width in cm (adjustable)
+        val actualWidth = 40f
+
+        // Approximate focal length of phone camera in pixels (you can calibrate this)
+        val focalLength = 600f
+
+        // Calculate the pixel distance between the shoulders
+        val pixelWidth = calculateDistance(leftShoulder, rightShoulder)
+
+        // Avoid division by zero
+        if (pixelWidth == 0f) return -1f
+
+        // Calculate the distance to the camera
+        val distance = (actualWidth * focalLength) / pixelWidth
+
+        return distance
+    }
+
+
 
     fun setResults(
         poseLandmarkerResults: PoseLandmarkerResult,

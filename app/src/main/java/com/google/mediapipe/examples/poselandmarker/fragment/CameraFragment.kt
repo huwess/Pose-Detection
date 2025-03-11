@@ -76,6 +76,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener, Over
     private lateinit var signTextView: TextView
     private lateinit var rightZ: TextView // New TextView for Z-Axis
     private lateinit var leftZ: TextView
+    private lateinit var dist: TextView
     private lateinit var rightShoulderZ: TextView
     private lateinit var leftShoulderZ: TextView
 
@@ -138,8 +139,9 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener, Over
         repCountTextView = fragmentCameraBinding.cameraContainer.findViewById(R.id.repition_count)
         stageTextView = fragmentCameraBinding.cameraContainer.findViewById(R.id.stage)
         signTextView = fragmentCameraBinding.cameraContainer.findViewById(R.id.sign)
-        rightZ = fragmentCameraBinding.cameraContainer.findViewById(R.id.rz_axis)
-        leftZ = fragmentCameraBinding.cameraContainer.findViewById(R.id.lz_axis)
+//        rightZ = fragmentCameraBinding.cameraContainer.findViewById(R.id.rz_axis)
+//        leftZ = fragmentCameraBinding.cameraContainer.findViewById(R.id.lz_axis)
+        dist = fragmentCameraBinding.cameraContainer.findViewById(R.id.distance)
         rightShoulderZ = fragmentCameraBinding.cameraContainer.findViewById(R.id.rshz_axis)
         leftShoulderZ = fragmentCameraBinding.cameraContainer.findViewById(R.id.lshz_axis)
 
@@ -199,11 +201,13 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener, Over
     }
 
     override fun onLeftZAxisUpdated(zAxis: String) {
-        leftZ.text = zAxis
+        dist.text = zAxis
+//        leftZ.text = zAxis
+
     }
 
     override fun onRightZAxisUpdated(zAxis: String) {
-        rightZ.text = zAxis
+//        rightZ.text = zAxis
     }
 
     override fun onLeftShoulderZAxisUpdated(zAxis: String) {
@@ -491,15 +495,15 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener, Over
                 val landmarkIndices = listOf(23, 11, 13, 24, 12, 14, 15, 16, 21, 22)
                 val coordinates = getLandmarkCoordinates(resultBundle, landmarkIndices)
 
-                // Log the coordinates for debugging
-                coordinates.forEach { (name, coord) ->
-                    Log.d("Landmark", "$name: x=${coord.first}, y=${coord.second}")
-                }
-
-                // Log the coordinates for debugging
-                coordinates.forEach { (name, coord) ->
-                    Log.d("Landmark", "$name: x=${coord.first}, y=${coord.second}")
-                }
+//                // Log the coordinates for debugging
+//                coordinates.forEach { (name, coord) ->
+//                    Log.d("Landmark", "$name: x=${coord.first}, y=${coord.second}")
+//                }
+//
+//                // Log the coordinates for debugging
+//                coordinates.forEach { (name, coord) ->
+//                    Log.d("Landmark", "$name: x=${coord.first}, y=${coord.second}")
+//                }
 
                 val text = fragmentCameraBinding.bottomSheetLayout.logsText.text
                 if(text.isEmpty()) {
