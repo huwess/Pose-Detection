@@ -79,6 +79,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener, Over
     private lateinit var dist: TextView
     private lateinit var rightShoulderZ: TextView
     private lateinit var leftShoulderZ: TextView
+    private lateinit var speedTextView: TextView
 
 
     /** Blocking ML operations are performed using this executor */
@@ -144,9 +145,11 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener, Over
         dist = fragmentCameraBinding.cameraContainer.findViewById(R.id.distance)
         rightShoulderZ = fragmentCameraBinding.cameraContainer.findViewById(R.id.rshz_axis)
         leftShoulderZ = fragmentCameraBinding.cameraContainer.findViewById(R.id.lshz_axis)
+        speedTextView = fragmentCameraBinding.cameraContainer.findViewById(R.id.speed)
 
         val overlayView: OverlayView = fragmentCameraBinding.cameraContainer.findViewById(R.id.overlay)
         overlayView.overlayUpdateListener = this
+        overlayView.setExerciseType("DumbbellPress")
 
         return fragmentCameraBinding.root
     }
@@ -206,6 +209,8 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener, Over
 
     }
 
+
+
     override fun onRightZAxisUpdated(zAxis: String) {
 //        rightZ.text = zAxis
     }
@@ -218,7 +223,9 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener, Over
         rightShoulderZ.text = zAxis
     }
 
-
+    override fun onSpeed(speed: String) {
+        speedTextView.text = speed
+    }
 
     private fun initBottomSheetControls() {
         // init bottom sheet settings

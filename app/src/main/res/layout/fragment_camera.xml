@@ -152,6 +152,21 @@
                 android:textSize="24sp"
                 />
         </TableRow>
+        <TableRow>
+            <TextView
+                android:text="Warning:"
+                android:textColor="@color/Red"
+                android:padding="2dp"
+                android:textSize="24sp"
+                />
+            <TextView
+                android:id="@+id/speed"
+                android:text=""
+                android:textColor="@color/Red"
+                android:padding="2dp"
+                android:textSize="24sp"
+                />
+        </TableRow>
     </TableLayout>
 
     <com.google.mediapipe.examples.poselandmarker.OverlayView
