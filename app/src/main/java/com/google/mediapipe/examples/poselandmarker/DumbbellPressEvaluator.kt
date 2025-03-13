@@ -82,10 +82,6 @@ class DumbbellPressEvaluator : ExerciseEvaluator {
 
                     //wrist, elbow and shoulder progress is complete or 100%
 
-                } else {
-                    feedback = "Too High"
-
-                    //wrist, elbow and shoulder progress is red but full in this part because it is too high
                 }
 
             } else {
@@ -112,23 +108,12 @@ class DumbbellPressEvaluator : ExerciseEvaluator {
 
             if((leftShoulderAngle < 70) && (rightShoulderAngle < 70)) {
 
-                if (leftElbowAngle < 30 || rightElbowAngle < 30) {
 
-                    if(leftDistance > 220 || rightDistance > 220) {
-                        feedback = "Elbows too low and far out"
-                    } else {
-                        feedback = "Elbows Too Low"
-                    }
-                    //wrist, elbow and shoulder progress is
-
-                } else {
                     if(leftDistance > 220 || rightDistance > 220) {
                         feedback = "Elbows too far out"
                     } else {
                         feedback = "Proper"
                     }
-
-                }
             } else {
                 feedback = "Proper"
             }
